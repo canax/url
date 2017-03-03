@@ -1,0 +1,30 @@
+{
+    "name": "anax/url",    
+    "type": "library",
+    "description": "Anax Url class.",
+    "keywords": ["boilerplate", "framework", "mvc", "micro", "education"],
+    "homepage": "https://dbwebb.se/anax",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mikael Roos",
+            "email": "mos@dbwebb.se",
+            "homepage": "https://dbwebb.se",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/canax/url/issues"
+    },
+    "autoload": {
+        "psr-4": { 
+            "Anax\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=5.6"
+    },
+    "require-dev": {
+        "php": ">=5.6"
+    }
+}
