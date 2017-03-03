@@ -4,9 +4,59 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2aba61559a182f43e30d19d29ae3f0eb",
-    "content-hash": "0ed162ba3b67e9f10b2636a3c27e18e6",
-    "packages": [],
+    "hash": "69323f9bf0e78db3a92dbbf64ee490bf",
+    "content-hash": "d1352198ab4d69a0f03022a80781d100",
+    "packages": [
+        {
+            "name": "anax/common",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/canax/common.git",
+                "reference": "180991c4a6a3d3510c342efcd43ae3a9169e19d9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/canax/common/zipball/180991c4a6a3d3510c342efcd43ae3a9169e19d9",
+                "reference": "180991c4a6a3d3510c342efcd43ae3a9169e19d9",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "php": ">=5.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Anax\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mikael Roos",
+                    "email": "mos@dbwebb.se",
+                    "homepage": "https://dbwebb.se",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Anax Common functions and classes.",
+            "homepage": "https://dbwebb.se/anax",
+            "keywords": [
+                "boilerplate",
+                "education",
+                "framework",
+                "micro",
+                "mvc"
+            ],
+            "time": "2017-03-03 14:06:54"
+        }
+    ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",

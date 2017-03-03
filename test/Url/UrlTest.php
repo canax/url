@@ -561,6 +561,6 @@ class UrlTest extends \PHPUnit_Framework_TestCase
     {
         $url = new \Anax\Url\Url();
 
-        $res = $url->setUrlType('NO_SUCH_TYPE');
+        $url->setUrlType('NO_SUCH_TYPE');
     }
 }

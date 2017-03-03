@@ -8,7 +8,7 @@ namespace Anax\Url;
  */
 class Url
 {
-    use \Anax\Utility\Configure;
+    use \Anax\Common\Configure;
 
 
 
