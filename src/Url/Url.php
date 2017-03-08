@@ -6,7 +6,7 @@ namespace Anax\Url;
  * A helper to create urls.
  *
  */
-class Url
+class Url implements \Anax\Common\ConfigureInterface
 {
     use \Anax\Common\ConfigureTrait;
 

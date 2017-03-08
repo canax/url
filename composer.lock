@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "anax/common",
-            "version": "v1.0.3",
+            "version": "v1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/canax/common.git",
-                "reference": "26c2c88d406d7c8535fb2ab2c17c91abbf451f71"
+                "reference": "36ff73b09fd2d7ed08bbc91fa81d6f5afd610483"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/canax/common/zipball/26c2c88d406d7c8535fb2ab2c17c91abbf451f71",
-                "reference": "26c2c88d406d7c8535fb2ab2c17c91abbf451f71",
+                "url": "https://api.github.com/repos/canax/common/zipball/36ff73b09fd2d7ed08bbc91fa81d6f5afd610483",
+                "reference": "36ff73b09fd2d7ed08bbc91fa81d6f5afd610483",
                 "shasum": ""
             },
             "require": {
@@ -53,7 +53,7 @@
                 "micro",
                 "mvc"
             ],
-            "time": "2017-03-08T08:25:13+00:00"
+            "time": "2017-03-08T10:11:17+00:00"
         }
     ],
     "packages-dev": [],
