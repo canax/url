@@ -8,8 +8,9 @@ Anax Url
 [![Build Status](https://scrutinizer-ci.com/g/canax/url/badges/build.png?b=master)](https://scrutinizer-ci.com/g/canax/url/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/canax/url/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/canax/url/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/canax/url/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/canax/url/?branch=master)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/e473b0fe-4daf-492a-b228-33a25a4d9d8a/mini.png)](https://insight.sensiolabs.com/projects/e473b0fe-4daf-492a-b228-33a25a4d9d8a)
 
-Url class for Anax.
+Anax Url module.
 
 
 

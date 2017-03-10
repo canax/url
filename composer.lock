@@ -4,21 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "69323f9bf0e78db3a92dbbf64ee490bf",
     "content-hash": "d1352198ab4d69a0f03022a80781d100",
     "packages": [
         {
             "name": "anax/common",
-            "version": "v1.0.0",
+            "version": "v1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/canax/common.git",
-                "reference": "180991c4a6a3d3510c342efcd43ae3a9169e19d9"
+                "reference": "36ff73b09fd2d7ed08bbc91fa81d6f5afd610483"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/canax/common/zipball/180991c4a6a3d3510c342efcd43ae3a9169e19d9",
-                "reference": "180991c4a6a3d3510c342efcd43ae3a9169e19d9",
+                "url": "https://api.github.com/repos/canax/common/zipball/36ff73b09fd2d7ed08bbc91fa81d6f5afd610483",
+                "reference": "36ff73b09fd2d7ed08bbc91fa81d6f5afd610483",
                 "shasum": ""
             },
             "require": {
@@ -54,7 +53,7 @@
                 "micro",
                 "mvc"
             ],
-            "time": "2017-03-03 14:06:54"
+            "time": "2017-03-08T10:11:17+00:00"
         }
     ],
     "packages-dev": [],
