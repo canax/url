@@ -9,6 +9,6 @@ return [
     //"staticSiteUrl" => null,
     //"staticBaseUrl" => null,
     //"scriptName"    => null,
-    //"urlType"       => self::URL_CLEAN,
-    "urlType"       => self::URL_APPEND,
+    //"urlType"       => \Anax\Url\Url::URL_CLEAN,
+    "urlType"       => \Anax\Url\Url::URL_APPEND,
 ];
