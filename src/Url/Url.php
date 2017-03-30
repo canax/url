@@ -13,23 +13,36 @@ class Url implements \Anax\Common\ConfigureInterface
 
 
     /**
-     * Properties
-     *
+     * @const URL_CLEAN  controller/action/param1/param2
+     * @const URL_APPEND index.php/controller/action/param1/param2
+     * @var   $urlType   What type of urls to generate, select from
+     *                   URL_CLEAN or URL_APPEND.
      */
-    const URL_CLEAN  = 'clean';  // controller/action/param1/param2
-    const URL_APPEND = 'append'; // index.php/controller/action/param1/param2
-
-    private $urlType = self::URL_APPEND; // What type of urls to generate
-
-    private $siteUrl = null; // Siteurl to prepend to all absolute urls created
-    private $baseUrl = null; // Baseurl to prepend to all relative urls created
-    private $scriptName = null; // Name of the frontcontroller script
+    const URL_CLEAN  = 'clean';
+    const URL_APPEND = 'append';
+    private $urlType = self::URL_APPEND;
 
 
-    private $staticSiteUrl = null; // Siteurl to prepend to all absolute
-                                   // urls for assets
-    private $staticBaseUrl = null; // Baseurl to prepend to all relative
-                                   // urls for assets
+
+    /**
+     * @var $siteUrl    Siteurl to prepend to all absolute urls created.
+     * @var $baseUrl    Baseurl to prepend to all relative urls created.
+     * @var $scriptName Name of the frontcontroller script.
+     */
+    private $siteUrl = null;
+    private $baseUrl = null;
+    private $scriptName = null;
+
+
+
+    /**
+     * @var $staticSiteUrl    Siteurl to prepend to all absolute urls for
+     *                        assets.
+     * @var $staticBaseUrl    Baseurl to prepend to all relative urls for
+     *                        assets.
+     */
+    private $staticSiteUrl = null;
+    private $staticBaseUrl = null;
 
 
 
@@ -96,6 +109,12 @@ class Url implements \Anax\Common\ConfigureInterface
             || $uri[0] == "?"
         ) {
             // Hashtag url to local page, or query part, leave as is.
+            return $uri;
+        } elseif (substr($uri, 0, 7) == "mailto:"
+            || substr(html_entity_decode($uri), 0, 7) == "mailto:") {
+            // Leave mailto links as is
+            // The odd fix is for markdown converting mailto: to UTF-8
+            // Might be a better way to solve this...
             return $uri;
         }
 
@@ -189,7 +208,7 @@ class Url implements \Anax\Common\ConfigureInterface
      *
      * @param string $url part of url to use when creating an url.
      *
-     * @return $this
+     * @return self
      */
     public function setSiteUrl($url)
     {
@@ -204,7 +223,7 @@ class Url implements \Anax\Common\ConfigureInterface
      *
      * @param string $url part of url to use when creating an url.
      *
-     * @return $this
+     * @return self
      */
     public function setBaseUrl($url)
     {
@@ -219,7 +238,7 @@ class Url implements \Anax\Common\ConfigureInterface
      *
      * @param string $url part of url to use when creating an url.
      *
-     * @return $this
+     * @return self
      */
     public function setStaticSiteUrl($url)
     {
@@ -234,7 +253,7 @@ class Url implements \Anax\Common\ConfigureInterface
      *
      * @param string $url part of url to use when creating an url.
      *
-     * @return $this
+     * @return self
      */
     public function setStaticBaseUrl($url)
     {
@@ -249,7 +268,7 @@ class Url implements \Anax\Common\ConfigureInterface
      *
      * @param string $name as the scriptname, for example index.php.
      *
-     * @return $this
+     * @return self
      */
     public function setScriptName($name)
     {
@@ -264,12 +283,14 @@ class Url implements \Anax\Common\ConfigureInterface
      *
      * @param string $type what type of urls to create.
      *
-     * @return $this
+     * @return self
+     *
+     * @throws Anax\Url\Exception
      */
     public function setUrlType($type)
     {
         if (!in_array($type, [self::URL_APPEND, self::URL_CLEAN])) {
-            throw new \Exception("Unsupported Url type.");
+            throw new Exception("Unsupported Url type.");
         }
 
         $this->urlType = $type;
