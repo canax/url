@@ -1,6 +1,15 @@
 Revision history
 =================================
 
+Notes for development v1.1.0*
+---------------------------------
+
+* Check organisation of tests.
+* Move slugify to static or trait?
+* Are all the set methods needed, replace by one getting array of config?
+* Rewrite asset, create, createRelative with Uri/UriBuilder class.
+
+
 v1.0.6 (2017-03-31)
 ---------------------------------
 
