@@ -36,6 +36,16 @@ class UrlTest extends \PHPUnit_Framework_TestCase
                 "https://dbwebb.se",
                 "https://dbwebb.se",
             ],
+            [
+                "https://dbwebb.se",
+                "/whatnot",
+                "https://dbwebb.se/whatnot",
+            ],
+            [
+                "https://dbwebb.se",
+                "long/winding/path",
+                "https://dbwebb.se/long/winding/path",
+            ],
         ];
     }
 
@@ -59,12 +69,13 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         $res = $url->setSiteUrl($siteUrl);
         $this->assertInstanceOf(get_class($url), $res, "setSiteUrl did not return this.");
 
-        $res = $url->createRelative($route);
-        $this->assertEquals($result, $res, "Created url did not match expected.");
-
         // createRelative
         $res = $url->setBaseUrl($siteUrl);
         $this->assertInstanceOf(get_class($url), $res, "setBaseUrl did not return this.");
+
+        $res = $url->createRelative($route);
+        $this->assertEquals($result, $res, "Created url did not match expected.");
+
 
         $res = $url->createRelative($route);
         $this->assertEquals($result, $res, "Created url did not match expected.");
@@ -166,6 +177,22 @@ class UrlTest extends \PHPUnit_Framework_TestCase
                 $urlType,
                 "controller/action/arg1/arg2",
                 "$baseUrl/$scriptName/controller/action/arg1/arg2",
+            ],
+            [
+                $siteUrl,
+                $baseUrl,
+                $scriptName,
+                $urlType,
+                "https://someothersite.com/glorius/article",
+                "https://someothersite.com/glorius/article",
+            ],
+            [
+                $siteUrl,
+                $baseUrl,
+                $scriptName,
+                $urlType,
+                "mailto:somedude@somesite.com",
+                "mailto:somedude@somesite.com",
             ],
         ];
     }
@@ -562,5 +589,99 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         $url = new \Anax\Url\Url();
 
         $url->setUrlType('NO_SUCH_TYPE');
+    }
+
+
+
+    /**
+     * Test
+     *
+     * @return void
+     */
+    public function testSetDefaultsFromConfiguration()
+    {
+        /**
+         * Config for url.
+         */
+        $config = [
+            // Defaults to use when creating urls.
+            "siteUrl"       => "http://dbwebb.se",
+            "baseUrl"       => "http://dbwebb.se/kod-exempel/anax-mvc",
+            "staticSiteUrl" => "http://static.se",
+            "staticBaseUrl" => "http://static.se/subdir",
+            "scriptName"    => "index.php",
+            "urlType"       => \Anax\Url\Url::URL_APPEND,
+            "thisIsInvalid" => "test skipping invalid field",
+        ];
+
+        $url = new \Anax\Url\Url();
+
+        $res = $url->setDefaultsFromConfiguration();
+        $this->assertInstanceOf(get_class($url), $res, "setDefaultsFromConfiguration did not return this.");
+
+        $res = $url->setDefaultsFromConfiguration($config);
+        $this->assertInstanceOf(get_class($url), $res, "setDefaultsFromConfiguration did not return this.");
+
+        // Test by checking expected by create and asset
+        $this->assertEquals($config["siteUrl"], $url->create("/"), "create doesn't return siteUrl");
+        // $this->assertEquals($config["baseUrl"], $url->create(""), "create doesn't return baseUrl");
+        $this->assertEquals(
+            $config["baseUrl"] . "/" . $config["scriptName"],
+            $url->create(""), "create doesn't return baseUrl with scriptName");
+
+        $this->assertEquals($config["staticSiteUrl"], $url->asset("/"), "asset doesn't return staticSiteUrl");
+        $this->assertEquals($config["staticBaseUrl"], $url->asset(""), "asset doesn't return staticBaseUrl");
+    }
+
+
+
+    /**
+     * Provider for slug test
+     *
+     * @return array
+     */
+    public function providerSlugify()
+    {
+        return [
+            "One word" => [
+                "oneword",
+                "oneword",
+            ],
+
+            "Swedish blogpost" => [
+                "Det här är en blogpost på svenska",
+                "det-har-ar-en-blogpost-pa-svenska",
+            ],
+
+            "English blogpost" => [
+                "This is a blog post in english",
+                "this-is-a-blog-post-in-english",
+            ],
+
+            "Apostrophe title" => [
+                "I'm cool",
+                "i-m-cool",
+            ],
+        ];
+    }
+
+
+
+    /**
+     * Test slugify
+     *
+     * @param string $title
+     * @param string $slug
+     *
+     * @return void
+     *
+     * @dataProvider providerSlugify
+     *
+     */
+    public function testSlugify($title, $slug)
+    {
+        $url = new \Anax\Url\Url();
+
+        $this->assertEquals($slug, $url->slugify($title));
     }
 }

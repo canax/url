@@ -1,5 +1,5 @@
 {
-    "name": "anax/url",    
+    "name": "anax/url",
     "type": "library",
     "description": "Anax Url class.",
     "keywords": ["boilerplate", "framework", "mvc", "micro", "education"],
@@ -11,19 +11,26 @@
             "email": "mos@dbwebb.se",
             "homepage": "https://dbwebb.se",
             "role": "Developer"
+        },
+        {
+            "name": "Anders Nygren",
+            "email": "litemerafrukt@gmail.com",
+            "homepage": "http://litemerafrukt.se",
+            "role": "Developer"
         }
     ],
     "support": {
         "issues": "https://github.com/canax/url/issues"
     },
     "autoload": {
-        "psr-4": { 
+        "psr-4": {
             "Anax\\": "src/"
         }
     },
     "require": {
         "php": ">=5.6",
-        "anax/common": "^1.0"
+        "anax/uri": "^1.0",
+        "anax/configure": "^1.0"
     },
     "require-dev": {
         "php": ">=5.6"

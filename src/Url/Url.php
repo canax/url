@@ -2,13 +2,15 @@
 
 namespace Anax\Url;
 
+use Anax\Uri\Uri;
+
 /**
  * A helper to create urls.
  *
  */
-class Url implements \Anax\Common\ConfigureInterface
+class Url implements \Anax\Configure\ConfigureInterface
 {
-    use \Anax\Common\ConfigureTrait;
+    use \Anax\Configure\ConfigureTrait;
 
 
 
@@ -29,9 +31,9 @@ class Url implements \Anax\Common\ConfigureInterface
      * @var $baseUrl    Baseurl to prepend to all relative urls created.
      * @var $scriptName Name of the frontcontroller script.
      */
-    private $siteUrl = null;
-    private $baseUrl = null;
-    private $scriptName = null;
+    private $siteUrl;
+    private $baseUrl;
+    private $scriptName;
 
 
 
@@ -41,33 +43,50 @@ class Url implements \Anax\Common\ConfigureInterface
      * @var $staticBaseUrl    Baseurl to prepend to all relative urls for
      *                        assets.
      */
-    private $staticSiteUrl = null;
-    private $staticBaseUrl = null;
+    private $staticSiteUrl;
+    private $staticBaseUrl;
+
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->siteUrl = new Uri("");
+        $this->baseUrl = new Uri("");
+        $this->scriptName = new Uri("");
+        $this->staticSiteUrl = new Uri("");
+        $this->staticBaseUrl = new Uri("");
+    }
 
 
 
     /**
      * Set default values from configuration.
      *
-     * @return this.
+     * @param mixed $configSource optional config source.
+     *
+     * @return self
      */
-    public function setDefaultsFromConfiguration()
+    public function setDefaultsFromConfiguration($configSource = null)
     {
-        $set = [
-            "urlType",
-            "siteUrl",
-            "baseUrl",
-            "staticSiteUrl",
-            "staticBaseUrl",
-            "scriptName",
-        ];
-        
-        foreach ($set as $item) {
-            if (!isset($this->config[$item])) {
-                continue;
+        $config = is_null($configSource)
+            ? $this->config
+            : $this->configure($configSource)->config;
+
+        foreach ($config as $key => $value) {
+            switch ($key) {
+                case "urlType":
+                    $this->setUrlType($value);
+                    break;
+                case "siteUrl":
+                case "baseUrl":
+                case "staticSiteUrl":
+                case "staticBaseUrl":
+                case "scriptName":
+                    $this->$key = new Uri($value);
+                    break;
             }
-            
-            $this->$item = $this->config[$item];
         }
 
         return $this;
@@ -79,61 +98,60 @@ class Url implements \Anax\Common\ConfigureInterface
      * Create an url and prepending the baseUrl.
      *
      * @param string $uri     part of uri to use when creating an url.
-     *                        "" or null means baseurl to current
+     *                        empty means baseurl to current
      *                        frontcontroller.
      * @param string $baseuri optional base to prepend uri.
      *
      * @return string as resulting url.
      */
-    public function create($uri = null, $baseuri = null)
+    public function create($uri = "", $baseuri = "")
     {
-        if (empty($uri) && empty($baseuri)) {
-            // Empty uri means baseurl
-            return $this->baseUrl
-                . (($this->urlType == self::URL_APPEND)
-                    ? "/$this->scriptName"
-                    : null);
-        } elseif (empty($uri)) {
-            // Empty uri means baseurl with appended $baseuri
-            ;
-        } elseif (substr($uri, 0, 7) == "http://"
-            || substr($uri, 0, 8) == "https://"
-            || substr($uri, 0, 2) == "//"
-        ) {
-            // Fully qualified, just leave as is.
-            return rtrim($uri, "/");
-        } elseif ($uri[0] == "/") {
-            // Absolute url, prepend with siteUrl
-            return rtrim($this->siteUrl . rtrim($uri, '/'), '/');
-        } elseif ($uri[0] == "#"
-            || $uri[0] == "?"
-        ) {
-            // Hashtag url to local page, or query part, leave as is.
-            return $uri;
-        } elseif (substr($uri, 0, 7) == "mailto:"
-            || substr(html_entity_decode($uri), 0, 7) == "mailto:") {
-            // Leave mailto links as is
-            // The odd fix is for markdown converting mailto: to UTF-8
-            // Might be a better way to solve this...
-            return $uri;
+        $uri = new Uri($uri);
+        $baseuri = new Uri($baseuri);
+
+        /**
+         * Cases with quick return
+         */
+        if ($uri->startsWith("http://", "https://", "//")) {
+            /** Fully qualified, just leave as is. */
+            return $uri->uri();
         }
 
-        // Prepend uri with baseuri
-        $uri = rtrim($uri, "/");
-        if (!empty($baseuri)) {
-            $uri = rtrim($baseuri, "/") . "/$uri";
+        if ($uri->startsWith("#", "?")) {
+            /** Hashtag url to local page, or query part, leave as is. */
+            return $uri->uri();
         }
 
-        // Remove the trailing index part of the url
-        if (basename($uri) == "index") {
-            $uri = dirname($uri);
+        if ($uri->startsWith("mailto:") || substr(html_entity_decode($uri->uri()), 0, 7) == "mailto:") {
+            /**
+             * Leave mailto links as is
+             *
+             * The odd fix is for markdown converting mailto: to UTF-8
+             * Might be a better way to solve this...
+             */
+            return $uri->uri();
         }
 
-        if ($this->urlType == self::URL_CLEAN) {
-            return rtrim($this->baseUrl . "/" . $uri, "/");
-        } else {
-            return rtrim($this->baseUrl . "/" . $this->scriptName . "/" . $uri, "/");
+        if ($uri->startsWith("/")) {
+            /** Absolute url, prepend with siteUrl. */
+            return $uri->prepend($this->siteUrl)->uri();
         }
+
+        /**
+         * Other cases
+         */
+
+        /** Remove the trailing 'index' part of the url. */
+        $uri->removeBasename("index");
+
+        if ($this->urlType != self::URL_CLEAN) {
+            $uri->prepend($this->scriptName);
+        }
+
+        return $uri
+            ->prepend($baseuri)
+            ->prepend($this->baseUrl)
+            ->uri();
     }
 
 
@@ -143,29 +161,29 @@ class Url implements \Anax\Common\ConfigureInterface
      * the frontcontroller.
      *
      * @param string $uri part of uri to use when creating an url.
-     *                    "" or null means baseurl to directory of
+     *                    empty means baseurl to directory of
      *                    the current frontcontroller.
      *
      * @return string as resulting url.
      */
-    public function createRelative($uri = null)
+    public function createRelative($uri = "")
     {
-        if (empty($uri)) {
-            // Empty uri means baseurl
-            return $this->baseUrl;
-        } elseif (substr($uri, 0, 7) == "http://"
-            || substr($uri, 0, 8) == "https://"
-            || substr($uri, 0, 2) == "//"
-        ) {
-            // Fully qualified, just leave as is.
-            return rtrim($uri, '/');
-        } elseif ($uri[0] == '/') {
-            // Absolute url, prepend with siteUrl
-            return rtrim($this->siteUrl . rtrim($uri, '/'), '/');
+        $uri = new Uri($uri);
+
+        /**
+         * Catch early returns
+         */
+        if ($uri->startsWith("http://", "https://", "//")) {
+            /** Fully qualified, return as is */
+            return $uri->uri();
         }
 
-        $uri = rtrim($uri, '/');
-        return $this->baseUrl . '/' . $uri;
+        if ($uri->startsWith("/")) {
+            /** Absolute url, prepend with siteUrl */
+            return $uri->prepend($this->siteUrl)->uri();
+        }
+
+        return $uri->prepend($this->baseUrl)->uri();
     }
 
 
@@ -177,28 +195,28 @@ class Url implements \Anax\Common\ConfigureInterface
      *
      * @return string as resulting url.
      */
-    public function asset($uri = null)
+    public function asset($uri = "")
     {
-        if (empty($uri)) {
-            // Allow empty
-        } elseif (substr($uri, 0, 7) == "http://"
-            || substr($uri, 0, 8) == "https://"
-            || substr($uri, 0, 2) == "//"
-        ) {
-            // Fully qualified, just leave as is.
-            return rtrim($uri, '/');
-        } elseif ($uri[0] == '/') {
-            // Absolute url, prepend with staticSiteUrl
-            return rtrim($this->staticSiteUrl . rtrim($uri, '/'), '/');
+        $uri = new Uri($uri);
+
+        /**
+         * Catch early returns
+         */
+        if ($uri->startsWith("http://", "https://", "//")) {
+            /** Fully qualified, return as is */
+            return $uri->uri();
         }
 
-        $baseUrl = isset($this->staticBaseUrl)
-            ? $this->staticBaseUrl
-            : $this->baseUrl;
+        if ($uri->startsWith("/")) {
+            /** Absolute url, prepend with staticSiteUrl */
+            return $uri->prepend($this->staticSiteUrl)->uri();
+        }
 
-        return empty($uri)
-            ? $baseUrl
-            : $baseUrl . '/' . $uri;
+        $baseUrl = $this->staticBaseUrl->isEmpty()
+            ? $this->baseUrl
+            : $this->staticBaseUrl;
+
+        return $uri->prepend($baseUrl)->uri();
     }
 
 
@@ -212,7 +230,7 @@ class Url implements \Anax\Common\ConfigureInterface
      */
     public function setSiteUrl($url)
     {
-        $this->siteUrl = rtrim($url, '/');
+        $this->siteUrl = new Uri($url);
         return $this;
     }
 
@@ -227,7 +245,7 @@ class Url implements \Anax\Common\ConfigureInterface
      */
     public function setBaseUrl($url)
     {
-        $this->baseUrl = rtrim($url, '/');
+        $this->baseUrl = new Uri($url);
         return $this;
     }
 
@@ -242,7 +260,7 @@ class Url implements \Anax\Common\ConfigureInterface
      */
     public function setStaticSiteUrl($url)
     {
-        $this->staticSiteUrl = rtrim($url, '/');
+        $this->staticSiteUrl = new Uri($url);
         return $this;
     }
 
@@ -257,7 +275,7 @@ class Url implements \Anax\Common\ConfigureInterface
      */
     public function setStaticBaseUrl($url)
     {
-        $this->staticBaseUrl = rtrim($url, '/');
+        $this->staticBaseUrl = new Uri($url);
         return $this;
     }
 
@@ -272,7 +290,7 @@ class Url implements \Anax\Common\ConfigureInterface
      */
     public function setScriptName($name)
     {
-        $this->scriptName = $name;
+        $this->scriptName = new Uri($name);
         return $this;
     }
 
@@ -285,7 +303,7 @@ class Url implements \Anax\Common\ConfigureInterface
      *
      * @return self
      *
-     * @throws Anax\Url\Exception
+     * @throws Exception
      */
     public function setUrlType($type)
     {
@@ -304,7 +322,7 @@ class Url implements \Anax\Common\ConfigureInterface
      *
      * @param string $str the string to format as slug.
      *
-     * @return str the formatted slug.
+     * @return string the formatted slug.
      */
     public function slugify($str)
     {
