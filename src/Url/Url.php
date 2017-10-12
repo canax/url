@@ -2,13 +2,16 @@
 
 namespace Anax\Url;
 
+use \Anax\Configure\ConfigureInterface;
+use \Anax\Configure\ConfigureTrait;
+
 /**
  * A helper to create urls.
  *
  */
-class Url implements \Anax\Common\ConfigureInterface
+class Url implements ConfigureInterface
 {
-    use \Anax\Common\ConfigureTrait;
+    use ConfigureTrait;
 
 
 

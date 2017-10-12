@@ -10,6 +10,12 @@ Notes for development v1.1.0*
 * Rewrite asset, create, createRelative with Uri/UriBuilder class.
 
 
+v1.0.8 (2017-10-12)
+---------------------------------
+
+* Use dependecy anax/configure instead of anax/common.
+
+
 v1.0.7 (2017-09-25)
 ---------------------------------
 
