@@ -10,6 +10,12 @@ Notes for development v1.1.0*
 * Rewrite asset, create, createRelative with Uri/UriBuilder class.
 
 
+v1.0.9 (2017-12-04)
+---------------------------------
+
+* Fix: Not to remove ending slash.
+
+
 v1.0.8 (2017-10-12)
 ---------------------------------
 

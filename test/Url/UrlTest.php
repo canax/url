@@ -109,7 +109,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
                 $scriptName,
                 $urlType,
                 "/",
-                "$siteUrl",
+                "$siteUrl/",
             ],
             [
                 $siteUrl,
@@ -227,7 +227,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
                 $baseUrl,
                 $urlType,
                 "/",
-                "$siteUrl",
+                "$siteUrl/",
             ],
             [
                 $siteUrl,
@@ -338,7 +338,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
                 $urlType,
                 "/",
                 $extraUrl,
-                "$siteUrl",
+                "$siteUrl/",
             ],
             [
                 $siteUrl,

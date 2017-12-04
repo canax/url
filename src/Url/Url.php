@@ -104,14 +104,15 @@ class Url implements ConfigureInterface
             || substr($uri, 0, 2) == "//"
         ) {
             // Fully qualified, just leave as is.
-            return rtrim($uri, "/");
+            return $uri;
         } elseif ($uri[0] == "/") {
             // Absolute url, prepend with siteUrl
-            return rtrim($this->siteUrl . rtrim($uri, '/'), '/');
+            //return rtrim($this->siteUrl . rtrim($uri, '/'), '/');
+            return $this->siteUrl . $uri;
         } elseif ($uri[0] == "#"
             || $uri[0] == "?"
         ) {
-            // Hashtag url to local page, or query part, leave as is.
+            // Hashtag url to local page, or query part leave as is.
             return $uri;
         } elseif (substr($uri, 0, 7) == "mailto:"
             || substr(html_entity_decode($uri), 0, 7) == "mailto:") {
