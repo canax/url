@@ -2,11 +2,12 @@
 
 namespace Anax\Url;
 
+use \PHPUnit\Framework\TestCase;
+
 /**
  * A helper to create urls.
- *
  */
-class UrlTest extends \PHPUnit_Framework_TestCase
+class UrlTest extends TestCase
 {
     /**
      * Provider for various siteUrls

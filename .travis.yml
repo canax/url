@@ -1,11 +1,19 @@
 language: php
 
 php:
-    - 5.6
-    - "7.0"
-    - "7.1"
+    #- 5.6
+    #- "7.0"
+    #- "7.1"
+    - "7.2"
     - hhvm
     - nightly
+
+
+
+matrix:
+    allow_failures:
+        - php: nightly
+        - php: hhvm
 
 
 
@@ -27,21 +35,11 @@ addons:
 
 
 
-matrix:
-    allow_failures:
-        - php: "7.0"
-        - php: "7.1"
-        - php: nightly
-        - php: hhvm
-
-
-
 before_script:
-    - make install
+    - make install check
 
 
 script:
-    - make check
     - make test
 
 
@@ -49,7 +47,10 @@ script:
 notifications:
     irc: "irc.freenode.org#dbwebb"
     urls:
-      - https://webhooks.gitter.im/e/6e4660b0024de67de0af
+        # canax
+        - https://webhooks.gitter.im/e/6e4660b0024de67de0af
+        # canax/url
+        - https://webhooks.gitter.im/e/0e5cb3710dd45c367b27
     on_success: change  # options: [always|never|change] default: always
     on_failure: always  # options: [always|never|change] default: always
     on_start: never     # options: [always|never|change] default: always
