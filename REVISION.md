@@ -12,6 +12,14 @@ Notes for development v1.1.0*
 
 
 
+v2.0.0-alpha.2 (2018-08-10)
+---------------------------------
+
+* Use composer to install phpunit.
+* Add config/di.
+
+
+
 v2.0.0-alpha.1 (2018-08-01)
 ---------------------------------
 

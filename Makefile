@@ -62,7 +62,8 @@ help:
 container ?= latest
 
 BIN     := .bin
-PHPUNIT := $(BIN)/phpunit
+#PHPUNIT := $(BIN)/phpunit
+PHPUNIT := vendor/bin/phpunit
 PHPLOC 	:= $(BIN)/phploc
 PHPCS   := $(BIN)/phpcs
 PHPCBF  := $(BIN)/phpcbf
@@ -259,15 +260,15 @@ install-tools-php:
 
 	curl -Lso $(BEHAT) https://github.com/Behat/Behat/releases/download/v3.3.0/behat.phar && chmod 755 $(BEHAT)
 
-	# Get PHPUNIT depending on current PHP installation
-	curl -Lso $(PHPUNIT) https://phar.phpunit.de/phpunit-$(shell \
-	 	php -r "echo version_compare(PHP_VERSION, '7.0', '<') \
-			? '5' \
-			: (version_compare(PHP_VERSION, '7.1', '>=') \
-				? '7' \
-				: '6'\
-		);" \
-		).phar && chmod 755 $(PHPUNIT)
+	# # Get PHPUNIT depending on current PHP installation
+	# curl -Lso $(PHPUNIT) https://phar.phpunit.de/phpunit-$(shell \
+	#  	php -r "echo version_compare(PHP_VERSION, '7.0', '<') \
+	# 		? '5' \
+	# 		: (version_compare(PHP_VERSION, '7.1', '>=') \
+	# 			? '7' \
+	# 			: '6'\
+	# 	);" \
+	# 	).phar && chmod 755 $(PHPUNIT)
 
 	[ ! -f composer.json ] || composer install
 
