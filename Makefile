@@ -142,6 +142,7 @@ build: test doc #theme less-compile less-minify js-minify
 .PHONY:  install
 install: prepare install-tools-php install-tools-bash
 	@$(call HELPTEXT,$@)
+	composer install
 
 
 
@@ -255,6 +256,7 @@ install-tools-php:
 	curl -Lso $(PHPCBF) https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar && chmod 755 $(PHPCBF)
 
 	curl -Lso $(PHPMD) http://static.phpmd.org/php/latest/phpmd.phar && chmod 755 $(PHPMD)
+	# curl -Lso $(PHPMD) http://www.student.bth.se/~mosstud/download/phpmd.phar && chmod 755 $(PHPMD)
 
 	curl -Lso $(PHPLOC) https://phar.phpunit.de/phploc.phar && chmod 755 $(PHPLOC)
 
@@ -375,7 +377,6 @@ install-tools-bash:
 .PHONY: check-tools-bash
 check-tools-bash:
 	@$(call HELPTEXT,$@)
-	#@$(call CHECK_VERSION, $(SHELLCHECK), | cut -d" " -f3-)
 	@$(call CHECK_VERSION, $(SHELLCHECK))
 	@$(call CHECK_VERSION, $(BATS))
 
@@ -434,7 +435,18 @@ define GIT_IGNORE_FILES
 endef
 export GIT_IGNORE_FILES
 
-# target: cimage-update           - Install/update Cimage to latest version.
+# target: cimage-install          - Install Cimage in htdocs
+.PHONY: cimage-install
+cimage-install:
+	@$(call HELPTEXT,$@)
+	install -d htdocs/img htdocs/cimage cache/cimage
+	chmod 777 cache/cimage
+	$(ECHO) "$$GIT_IGNORE_FILES" | bash -c 'cat > cache/cimage/.gitignore'
+	cp vendor/mos/cimage/webroot/img.php htdocs/cimage
+	cp vendor/mos/cimage/webroot/img/car.png htdocs/img/
+	touch htdocs/cimage/img_config.php
+
+# target: cimage-update           - Update Cimage to latest version.
 .PHONY: cimage-update
 cimage-update:
 	@$(call HELPTEXT,$@)
