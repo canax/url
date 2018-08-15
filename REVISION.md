@@ -12,6 +12,13 @@ Notes for development v1.1.0*
 
 
 
+v2.0.0-beta.1 (2018-08-15)
+---------------------------------
+
+* Update description in composer.json.
+
+
+
 v2.0.0-alpha.2 (2018-08-10)
 ---------------------------------
 
