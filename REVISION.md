@@ -12,6 +12,13 @@ Notes for development v1.1.0*
 
 
 
+v2.0.0 (2020-05-27)
+---------------------------------
+
+* Update configuration file based on production or not.
+
+
+
 v2.0.0-beta.2 (2018-08-15)
 ---------------------------------
 

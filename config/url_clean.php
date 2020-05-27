@@ -2,6 +2,15 @@
 /**
  * Config file for url.
  */
+#
+if (!defined("ANAX_PRODUCTION")) {
+    // For development environment
+    return [
+        "urlType"       => self::URL_CLEAN,
+    ];
+}
+
+// For production environment
 return [
     // Defaults to use when creating urls.
     //"siteUrl"       => null,
