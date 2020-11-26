@@ -2,13 +2,22 @@ Revision history
 =================================
 
 
-Notes for development v1.1.0*
+Notes for development
 ---------------------------------
+
+* !Remove configuration from the class, put it outside.
 
 * Check organisation of tests.
 * Move slugify to static or trait?
 * Are all the set methods needed, replace by one getting array of config?
 * Rewrite asset, create, createRelative with Uri/UriBuilder class.
+
+
+
+v2.0.1 (2020-11-26)
+---------------------------------
+
+* Add unit testing and prepare to move away configuraton included in the class.
 
 
 

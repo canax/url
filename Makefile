@@ -16,7 +16,12 @@ ECHO = echo
 
 # Make adjustments based on OS
 ifneq (, $(findstring CYGWIN, $(OS)))
+	OS_CYGWIN = "true"
 	ECHO = /bin/echo -e
+else ifneq (, $(findstring Linux, $(OS)))
+	OS_LINUX = "true"
+else ifneq (, $(findstring Darwin, $(OS)))
+	OS_MAC = "true"
 endif
 
 # Colors and helptext
@@ -30,14 +35,14 @@ WARN_COLOR	= \033[33;01m
 ACTION_MESSAGE = $(ECHO) "$(ACTION)---> $(1)$(NO_COLOR)"
 
 # Which makefile am I in?
-WHERE-AM-I = $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+WHERE-AM-I = "$(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))"
 THIS_MAKEFILE := $(call WHERE-AM-I)
 
 # Echo some nice helptext based on the target comment
 HELPTEXT = $(call ACTION_MESSAGE, $(shell egrep "^\# target: $(1) " $(THIS_MAKEFILE) | sed "s/\# target: $(1)[ ]*-[ ]* / /g"))
 
 # Check version  and path to command and display on one line
-CHECK_VERSION = printf "%-15s %-10s %s\n" "`basename $(1)`" "`$(1) --version $(2)`" "`which $(1)`"
+CHECK_VERSION = printf "%-10s %-20s %s\n" "`basename $(1)`" "`which $(1)`" "`$(1) --version $(2)`"
 
 # Get current working directory, it may not exist as environment variable.
 PWD = $(shell pwd)
@@ -61,17 +66,19 @@ help:
 # Default values for arguments
 container ?= latest
 
-BIN     := .bin
-#PHPUNIT := $(BIN)/phpunit
-PHPUNIT := vendor/bin/phpunit
-PHPLOC 	:= $(BIN)/phploc
-PHPCS   := $(BIN)/phpcs
-PHPCBF  := $(BIN)/phpcbf
-PHPMD   := $(BIN)/phpmd
-PHPDOC  := $(BIN)/phpdoc
-BEHAT   := $(BIN)/behat
+BIN        := .bin
+VENDORBIN  := vendor/bin
+PHPUNIT    := $(VENDORBIN)/phpunit
+PHPLOC     := $(BIN)/phploc
+PHPCS      := $(BIN)/phpcs
+PHPCBF     := $(BIN)/phpcbf
+PHPMD      := $(BIN)/phpmd
+PHPSTAN    := $(VENDORBIN)/phpstan
+PHPDOC     := $(BIN)/phpdoc
+PHPDOX     := $(BIN)/phpdox
+BEHAT      := $(BIN)/behat
 SHELLCHECK := $(BIN)/shellcheck
-BATS := $(BIN)/bats
+BATS       := $(BIN)/bats
 
 
 
@@ -90,6 +97,7 @@ prepare:
 clean:
 	@$(call HELPTEXT,$@)
 	rm -rf build
+	rm -f .phpunit.result.cache
 
 
 
@@ -118,15 +126,26 @@ check: check-tools-bash check-tools-php check-docker
 
 # target: test                    - Run all tests.
 .PHONY:  test
-test: phpunit phpcs phpmd phploc behat shellcheck bats
+test: phpunit phpcs phpmd phpstan phploc behat shellcheck bats
 	@$(call HELPTEXT,$@)
 	composer validate
 
 
 
+# target: test-anax               - Run tests in vendor/anax/*.
+.PHONY:  test-anax
+test-anax:
+	@$(call HELPTEXT,$@)
+	for repo in `ls vendor/anax` ; do                        \
+		$(call ACTION_MESSAGE,"Do \"make install test\" of anax/$$repo");                       \
+		$(MAKE) --directory=vendor/anax/$$repo install test; \
+	done
+
+
+
 # target: doc                     - Generate documentation.
 .PHONY:  doc
-doc: phpdoc
+doc: phpdoc phpdox
 	@$(call HELPTEXT,$@)
 
 
@@ -248,30 +267,28 @@ check-docker:
 .PHONY: install-tools-php
 install-tools-php:
 	@$(call HELPTEXT,$@)
-	#curl -Lso $(PHPDOC) https://www.phpdoc.org/phpDocumentor.phar && chmod 755 $(PHPDOC)
-	curl -Lso $(PHPDOC) https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar && chmod 755 $(PHPDOC)
+	# phpdoc
+	curl -Lso $(PHPDOC) https://github.com/phpDocumentor/phpDocumentor2/releases/download/v3.0.0-rc/phpDocumentor.phar && chmod 755 $(PHPDOC)
 
+	# phpdox
+	curl -Lso $(PHPDOX) http://phpdox.de/releases/phpdox.phar && chmod 755 $(PHPDOX)
+
+	# phpcs
 	curl -Lso $(PHPCS) https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar && chmod 755 $(PHPCS)
 
+	# phpcbf
 	curl -Lso $(PHPCBF) https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar && chmod 755 $(PHPCBF)
 
-	curl -Lso $(PHPMD) http://static.phpmd.org/php/latest/phpmd.phar && chmod 755 $(PHPMD)
-	# curl -Lso $(PHPMD) http://www.student.bth.se/~mosstud/download/phpmd.phar && chmod 755 $(PHPMD)
+	# phpmd
+	curl -Lso $(PHPMD) https://github.com/phpmd/phpmd/releases/download/2.9.1/phpmd.phar && chmod 755 $(PHPMD)
 
+	# phpstan
 	curl -Lso $(PHPLOC) https://phar.phpunit.de/phploc.phar && chmod 755 $(PHPLOC)
 
+	# Behat
 	curl -Lso $(BEHAT) https://github.com/Behat/Behat/releases/download/v3.3.0/behat.phar && chmod 755 $(BEHAT)
 
-	# # Get PHPUNIT depending on current PHP installation
-	# curl -Lso $(PHPUNIT) https://phar.phpunit.de/phpunit-$(shell \
-	#  	php -r "echo version_compare(PHP_VERSION, '7.0', '<') \
-	# 		? '5' \
-	# 		: (version_compare(PHP_VERSION, '7.1', '>=') \
-	# 			? '7' \
-	# 			: '6'\
-	# 	);" \
-	# 	).phar && chmod 755 $(PHPUNIT)
-
+	# Composer install
 	[ ! -f composer.json ] || composer install
 
 
@@ -285,9 +302,11 @@ check-tools-php:
 	@$(call CHECK_VERSION, $(PHPUNIT))
 	@$(call CHECK_VERSION, $(PHPLOC))
 	@$(call CHECK_VERSION, $(PHPCS))
-	@$(call CHECK_VERSION, $(PHPMD))
 	@$(call CHECK_VERSION, $(PHPCBF))
+	@$(call CHECK_VERSION, $(PHPMD))
+	@$(call CHECK_VERSION, $(PHPSTAN))
 	@$(call CHECK_VERSION, $(PHPDOC))
+	@$(call CHECK_VERSION, $(PHPDOX))
 	@$(call CHECK_VERSION, $(BEHAT))
 
 
@@ -328,6 +347,14 @@ phpmd: prepare
 
 
 
+# target: phpstan                 - Static code analysis for PHP.
+.PHONY: phpstan
+phpstan: prepare
+	@$(call HELPTEXT,$@)
+	- [ ! -f .phpstan.neon ] || $(PHPSTAN) analyse -c .phpstan.neon | tee build/phpstan
+
+
+
 # target: phploc                  - Code statistics for PHP.
 .PHONY: phploc
 phploc: prepare
@@ -340,7 +367,15 @@ phploc: prepare
 .PHONY: phpdoc
 phpdoc:
 	@$(call HELPTEXT,$@)
-	[ ! -d doc ] || $(PHPDOC) --config=.phpdoc.xml
+	[ ! -d doc ] || [ ! -f .phpdox.xml ] || $(PHPDOC) --config=.phpdoc.xml
+
+
+
+# target: phpdox                  - Create documentation for PHP.
+.PHONY: phpdox
+phpdox:
+	@$(call HELPTEXT,$@)
+	[ ! -d doc ] || [ ! -f .phpdox.xml ] || $(PHPDOX) --file .phpdox.xml
 
 
 
@@ -349,6 +384,7 @@ phpdoc:
 behat:
 	@$(call HELPTEXT,$@)
 	[ ! -d features ] || $(BEHAT)
+
 
 
 # ------------------------------------------------------------------------
@@ -361,7 +397,11 @@ behat:
 install-tools-bash:
 	@$(call HELPTEXT,$@)
 	# Shellcheck
-	curl -s https://storage.googleapis.com/shellcheck/shellcheck-latest.linux.x86_64.tar.xz | tar -xJ -C build/ && rm -f .bin/shellcheck && ln build/shellcheck-latest/shellcheck .bin/
+ifdef OS_LINUX
+	curl -Ls https://github.com/koalaman/shellcheck/releases/download/latest/shellcheck-latest.linux.x86_64.tar.xz | tar -xJ -C build/ && rm -f .bin/shellcheck && ln build/shellcheck-latest/shellcheck .bin/
+else ifdef OS_MAC
+	curl -Ls https://github.com/koalaman/shellcheck/releases/download/latest/shellcheck-latest.darwin.x86_64.tar.xz | tar -xJ -C build/ && rm -f .bin/shellcheck && ln build/shellcheck-latest/shellcheck .bin/
+endif
 
 	# Bats
 	curl -Lso $(BIN)/bats-exec-suite https://raw.githubusercontent.com/sstephenson/bats/master/libexec/bats-exec-suite
@@ -400,67 +440,23 @@ bats:
 
 # ------------------------------------------------------------------------
 #
+# Developer
+#
+# target: scaff-reinstall         - Reinstall using scaffolding processing scripts.
+.PHONY: scaff-reinstall
+scaff-reinstall:
+	@$(call HELPTEXT,$@)
+	#rm -rf -v !(composer.*|vendor|.anax); .anax/scaffold/postprocess.bash
+
+
+
+# ------------------------------------------------------------------------
+#
 # Theme
 #
 # target: theme                   - Do make build install in theme/ if available.
 .PHONY: theme
 theme:
 	@$(call HELPTEXT,$@)
-	[ ! -d theme ] || $(MAKE) --directory=theme build install
-	#[ ! -d theme ] || ( cd theme && make build install )
-
-
-
-# ------------------------------------------------------------------------
-#
-# Cimage
-#
-
-define CIMAGE_CONFIG
-<?php
-return [
-    "mode"         => "development",
-    "image_path"   =>  __DIR__ . "/../img/",
-    "cache_path"   =>  __DIR__ . "/../../cache/cimage/",
-    "autoloader"   =>  __DIR__ . "/../../vendor/autoload.php",
-];
-endef
-export CIMAGE_CONFIG
-
-define GIT_IGNORE_FILES
-# Ignore everything in this directory
-*
-# Except this file
-!.gitignore
-endef
-export GIT_IGNORE_FILES
-
-# target: cimage-install          - Install Cimage in htdocs
-.PHONY: cimage-install
-cimage-install:
-	@$(call HELPTEXT,$@)
-	install -d htdocs/img htdocs/cimage cache/cimage
-	chmod 777 cache/cimage
-	$(ECHO) "$$GIT_IGNORE_FILES" | bash -c 'cat > cache/cimage/.gitignore'
-	cp vendor/mos/cimage/webroot/img.php htdocs/cimage
-	cp vendor/mos/cimage/webroot/img/car.png htdocs/img/
-	touch htdocs/cimage/img_config.php
-
-# target: cimage-update           - Update Cimage to latest version.
-.PHONY: cimage-update
-cimage-update:
-	@$(call HELPTEXT,$@)
-	composer require mos/cimage
-	install -d htdocs/img htdocs/cimage cache/cimage
-	chmod 777 cache/cimage
-	$(ECHO) "$$GIT_IGNORE_FILES" | bash -c 'cat > cache/cimage/.gitignore'
-	cp vendor/mos/cimage/webroot/img.php htdocs/cimage
-	cp vendor/mos/cimage/webroot/img/car.png htdocs/img/
-	touch htdocs/cimage/img_config.php
-
-# target: cimage-config-create    - Create configfile for Cimage.
-.PHONY: cimage-config-create
-cimage-config-create:
-	@$(call HELPTEXT,$@)
-	$(ECHO) "$$CIMAGE_CONFIG" | bash -c 'cat > htdocs/cimage/img_config.php'
-	cat htdocs/cimage/img_config.php
+	[ ! -d theme ] || $(MAKE) --directory=theme build
+	rsync -a theme/build/less/css htdocs/

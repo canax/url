@@ -1,5 +1,5 @@
 {
-    "name": "anax/url",    
+    "name": "anax/url",
     "type": "library",
     "description": "Anax Url module, to create links to urls and assets.",
     "keywords": ["anax", "framework", "mvc", "micro", "education"],
@@ -15,15 +15,17 @@
         "issues": "https://github.com/canax/url/issues"
     },
     "autoload": {
-        "psr-4": { 
+        "psr-4": {
             "Anax\\": "src/"
         }
     },
     "require": {
         "php": "^7.2",
-        "anax/configure": "^2.0.0@alpha"
+        "anax/configure": "^2.0.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7"
+        "phpunit/phpunit": "^7",
+        "anax/di": "^v2.0.4",
+        "anax/request": "^v2.0.7"
     }
 }

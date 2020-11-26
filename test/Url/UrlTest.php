@@ -43,14 +43,9 @@ class UrlTest extends TestCase
 
 
     /**
-     * Test
-     *
-     * @param string $route the route part
-     *
-     * @return void
+     * Create site url
      *
      * @dataProvider providerSiteUrl
-     *
      */
     public function testCreateAsSiteUrl($siteUrl, $route, $result)
     {
